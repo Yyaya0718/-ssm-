@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../../back/css/common.css">
+<link rel="stylesheet" href="../../back/css/main.css">
+<link rel="stylesheet" type="text/css" href="../../easyui/css/easyui.css">
+<link rel="stylesheet" type="text/css" href="../../easyui/css/icon.css">
+<link rel="stylesheet" type="text/css" href="../../easyui/css/wu.css" />
+<title>商品修改页面</title>
+</head>
+<body>
+	<div id="update_good" style="top:10px;">
+	<form action="" class="jqtransform" id="addGoodsForm">
+		<table class="form_table pt15 pb15" width="100%" border="0" cellpadding="0" cellspacing="0">
+			<tr>
+				<td class="td_right">商品类型：</td>
+				<td>
+					<select class="select" name="tid" id="goodsType">
+					</select>
+				</td>
+				<td class="td_right">商品名称：</td>
+				<td>
+				<input type="text" id="gname" name="title" class="input-text lh30" size="40" placeholder="请输入商品名称">
+				</td>
+				<td class="td_right">商品单价：</td>
+				<td>
+				<input type="number" id="price" name="price" class="input-text lh30" size="40" placeholder="单价"/>
+				</td>
+			</tr>
+			<tr>
+				<td class="td_right">商品库存：</td>
+				<td>
+				<input type="number" id="balance" name="balance" class="input-text lh30" size="40"  placeholder="库存"/>
+				</td>
+				<td class="td_right">商品单位：</td>
+				<td>
+					<input type="text" id="unit" name="unit" class="input-text lh30" size="40" placeholder="单位"/>
+				</td>
+				<td class="td_right">保质期：</td>
+				<td>
+					<input type="text" id="qperied" name="qperied" class="input-text lh30" size="40"  placeholder="保质期"/>
+				</td>
+				</tr>
+				<tr>
+				<td class="td_right">商品净重：</td>
+				<td>
+				<input type="text" id="weight" name="weight" class="input-text lh30" size="40" placeholder="净重" >
+				</td>
+				<td class="td_right">商品图片：</td>
+				<td>
+					<input type="file" id="pic" name="pic" class="input-text lh30" size="40" multiple="multiple" onchange="setImagePreviews(this,'showPics')">
+				</td>
+				<td ></td>
+				<td id="error"></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+				<td colspan="5" align="center">
+					<div id="showPics">
+								
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td class="td_right">商品简介：</td>
+				<td colspan="5">
+				<textarea name="intro" id="intro" rows="3" cols="100"></textarea>
+				</td>
+			</tr>
+			<tr>
+				<td class="td_right">商品描述：</td>
+				<td colspan="5">
+					 <textarea name="editor1" id="editor1" rows="10" cols="80"></textarea>
+				</td>
+			</tr>
+		</table>
+	</form>	
+</div>
+<script type="text/javascript" src="../../easyui/js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="../../easyui/js/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="../../easyui/js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../../ckeditor/ckeditor.js"></script>
+<script type="text/javascript" src="../../back/js/showpic.js"></script>
+<script type="text/javascript" src="../../back/js/ajaxfileupload.js"></script>
+<script type="text/javascript">
+var gno=location.hash.replace("#", "");
+	$(function(){
+		
+		//查询所有类型
+		$.post("../../type/findAll",null,function(data){
+			var str='';
+			$.each(data,function(index,item){
+				str+='<option value='+ item.tno +'>'+ item.tname +'</option>';
+			})
+			$("#goodsType").append($(str));
+		},"json")
+		
+		//根据gno查询这个商品的信息  并且显示在表单中
+		$.post("../../good/findByGno",{gno:gno},function(data){
+			$("#goodsType").val(data.tno);
+			$("#gname").val(data.gname);
+			$("#price").val(data.price);
+			$("#balance").val(data.balance);
+			$("#unit").val(data.unit);
+			$("#qperied").val(data.qperied);
+			$("#weight").val(data.weight);
+			$("#intro").val(data.intro);
+			CKEDITOR.instances.editor1.setData(data.descr);
+			
+		},"json")
+	})
+	
+	CKEDITOR.replace( 'editor1' );
+	
+	$('#update_good').dialog({
+	    title: '商品修改',
+	    width: 1000,
+	    height: 480,
+	    closed: false,
+	    cache: false,
+	    iconCls: 'icon-page-add',
+	    modal: true,
+	    buttons:[{
+	    	text:"确定",
+	    	iconCls:"icon-ok",
+	    	handler:function(){
+	    		var tno = $.trim($("#goodsType").val());
+	    		var gname = $.trim($("#gname").val());
+	    		var price = $.trim($("#price").val());
+	    		var balance = $.trim($("#balance").val());
+	    		var unit = $.trim($("#unit").val());
+	    		var qperied = $.trim($("#qperied").val());
+	    		var weight = $.trim($("#weight").val());
+	    		var intro = $.trim($("#intro").val());
+	    		var descr = CKEDITOR.instances.editor1.getData();
+	    		
+	    		$.ajaxFileUpload({
+	    			url:'../../good/update',
+	    			secureuri: false,
+	    			fileElementId:"pic",
+	    			dataType:"json",
+	    			data:{gno:gno,tno:tno,gname:gname,price:price,balance:balance,unit:unit,qperied:qperied,weight:weight,intro:intro,descr:descr},
+	    			success:function(data, status) {
+	    				data = parseInt($.trim(data));
+	    				if (data >0) {
+	    					alert("修改成功");
+		    				$('#update_good').dialog("close");
+		    				location.href="view.html";
+	    				} else {
+	    					alert("修改失败....");
+	    				}
+	    			},
+	    			error:function(data, status, e) {
+	    				alert("修改失败，请稍后重试...\n" + e);
+	    			}
+	    		});
+	    	
+	    	}
+	    },{
+	    	text:"取消",
+			iconCls:"icon-cancel",
+			handler:function(){
+				$('#update_good').dialog('close');
+				location.href="view.html";
+			}
+	    }]
+	});
+</script>
+</body>
+</html>

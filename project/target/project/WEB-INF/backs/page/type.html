@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../../back/css/common.css">
+<link rel="stylesheet" href="../../back/css/main.css">
+<link rel="stylesheet" type="text/css" href="../../easyui/css/easyui.css">
+<link rel="stylesheet" type="text/css" href="../../easyui/css/icon.css">
+<link rel="stylesheet" type="text/css" href="../../easyui/css/wu.css" />
+</head>
+<body class="easyui-layout">
+<div id="table" class="mt10" style="width:100%;height:98%;">
+	
+		<table id="view_test_data" data-options="scrollbarSize:0">
+		
+		</table>
+		
+</div>
+<script type="text/javascript" src="../../easyui/js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="../../easyui/js/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="../../easyui/js/jquery.easyui.min.js"></script>
+<script type="text/javascript">
+var page=parseInt(location.hash.replace("#", ""));
+var pages=0;
+	$(function(){
+		$('#view_test_data').datagrid({
+			url:"../../type/finds",
+		    fitColumns:true,
+		    fit:true,
+		    striped:true,
+		    nowrap:true,
+		    loadMsg:'数据加载中...',
+		    pagination:true,
+		    singleSelect:true,
+		    sortName:"tno",
+		    remoteSort:false,
+		    pageNumber:1,
+		    pageSize:3,
+		    pageList:[1,2,3,4,5,6],
+		    columns:[[    
+		        {field:'tno',title:'类型编号',width:60,align:'center',sortable:true,sorter:function(a,b){
+		        	var i=parseInt(a);
+		        	var j=parseInt(b);
+		        	return i>b?1:-1;
+		        }},    
+		        {field:'pic',title:'图片',width:150,align:'center',height:150,formatter:function(val,row,index){
+		        	return "<img src='../../"+ row.pic +"' />";
+		        }},
+		        {field:'tname',title:'类型名称',width:80,align:'center'},
+		        {field:'status',title:'状态',width:60,align:'center',formatter:function(val,row,index){
+		        	if(val==1){
+		        		return "<font color='blue'>正常</font>";
+		        	}else{
+		        		return "<font color='red'>已下架</font>";
+		        	}
+		        }},
+		        {field:'_opreat',title:'操作',width:80,align:'center',formatter:function(val,row,index){
+		        	var str="";
+		        	if(row.status==1){
+		        		str+="<a href='javascript:viewTestOp("+ row.tno +",1)' style='color:red;'>下架</a>";
+		        	}else{
+		        		str+="<a href='javascript:viewTestShow("+ row.tno +")' style='color:red;'>上架</a>";
+		        	}
+		        	str+="&nbsp;&nbsp;&nbsp;<a href='javascript:viewTestOp("+ row.tno +",1)' style='color:red;'>删除</a>";
+		        	return str;
+		        }}    
+		    ]]
+		});  
+		
+		
+	})
+	
+	
+
+</script>
+</body>
+</html>

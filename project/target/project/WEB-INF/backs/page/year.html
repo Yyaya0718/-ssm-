@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>季度报表</title>
+</head>
+<body>
+	<div id="year_sale">
+		<p>
+			<label>年份选择：</label>
+			<select id="quarter" onchange="getYear()">
+				<option>----请选择----</option>
+			</select>
+		</p>
+	</div>
+	<div id="year_main" style="width: 600px;height:400px;">
+    </div>
+
+</body>
+<script type="text/javascript" src="../../back/js/jquery.min.js"></script>
+<script type="text/javascript" src="../../back/js/echarts.min.js"></script>
+<script type="text/javascript">
+var date=new Date().getFullYear();
+var dates=date;
+$(function(){
+	var str='';
+	for(var i=2000;i<3000;i++){
+		if(i==date){
+			str+='<option selected>'+ i +'</option>';
+		}
+		str+='<option>'+ i +'</option>';
+	}
+	$("#quarter").append($(str));
+	getdate();
+})
+
+//年份一发生改变触发
+function getYear(){
+	dates=$("#quarter").val();
+	getdate();
+}
+
+var price=[];
+var tname=[];
+
+//基于准备好的dom，初始化echarts实例
+var myChart = echarts.init(document.getElementById('year_main'));
+function getdate(){
+		
+	if(dates=='' || dates==null){
+		return;
+	}
+		
+		$.post("../../order/findDate",{date:dates},function(data){
+			if(data==null){
+				alert("今天暂务营业额");
+			}else{
+				$.each(data.type,function(index,item){
+					if(data.price[index]==null){
+						price[index]=0;
+					}else{
+						price[index]=data.price[index];
+					}
+					
+					tname[index]=item.tname;
+				})
+					myChart.setOption({
+				    title: {
+				        text:'每种商品'+ dates +'年销量报表',
+				        textStyle:{
+				        	color:'#FF3030',
+				        	fontSize:18
+				        }
+				    },
+				    tooltip: {},
+				    legend: {show:false},
+				    xAxis: {
+				    	show:true,
+				    	name:'类别',				//---轴名称
+				    	nameLocation:'end',		//---轴名称相对位置
+				    	
+				    	axisLine:{		
+				    		show:true,//---坐标轴 轴线
+				    		symbol:['none', 'arrow'],	//---是否显示轴线箭头
+				    		symbolSize:[8, 8] ,			//---箭头大小
+				    		symbolOffset:[0,7]		//---箭头位置
+				    		},
+				        	data:tname,
+				    },
+				    yAxis: {
+				    	show:true,
+				    	axisLine:{					//---坐标轴 轴线
+				    		show:true,	
+				    		symbol:['none', 'arrow'],	//---是否显示轴线箭头
+				    		symbolSize:[8, 8] ,			//---箭头大小
+				    		symbolOffset:[0,7],			//---箭头位置
+				    	}
+					},
+				    series: [{
+				        name: '销量',
+				        type: 'bar',
+				        itemStyle: {
+				            normal: {
+				　　　　　　		//好，这里就是重头戏了，定义一个list，然后根据所以取得不同的值，这样就实现了，
+								color: function(params) {
+				                    var colorList = [
+				                      '#C1232B','#B5C334','#FCCE10','#E87C25','#27727B',
+				                       '#FE8463'
+				                    ];
+				                    return colorList[params.dataIndex]
+				                },
+				    }},
+				    data:price,
+				  }]
+				})
+			}
+		},"json")
+	}
+</script>
+</body>
+</html>

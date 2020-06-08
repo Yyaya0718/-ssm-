@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>季度报表</title>
+</head>
+<body>
+	<div id="date_sale">
+		<p>
+			<label>季度选择：</label>
+			<select id="quarter" onchange="getQuarter()">
+				<option>----请选择----</option>
+			</select>
+		</p>
+	</div>
+	<div id="quarter_main" style="width: 600px;height:400px;">
+    </div>
+
+</body>
+<script type="text/javascript" src="../../back/js/jquery.min.js"></script>
+<script type="text/javascript" src="../../back/js/echarts.min.js"></script>
+<script type="text/javascript">
+var quarter=["第一季度","第二季度","第三季度","第四季度"];
+var date=$("#quarter").html();
+	$(function(){
+		var str='';
+		for(var i=0;i<quarter.length;i++){
+			str+='<option>'+ quarter[i] +'</option>';
+		}
+		$("#quarter").append($(str));
+	})
+var year=new Date().getFullYear();
+var startTime=year;
+var endTime=year;	
+
+function getQuarter(){
+	date=$("#quarter").val();
+	if(date=='第一季度'){
+		startTime+='-0'+ 1 +'-01';
+		endTime+='-0'+ 3 +'-31';
+	}else if(date=='第二季度'){
+		startTime+='-0'+ 4 +'-01';
+		endTime+='-0'+ 6 +'-30';
+	}else if(date=='第三季度'){
+		startTime+='-0'+ 7 +'-01';
+		endTime+='-0'+ 9 +'-30';
+	}else if(date=='第四季度'){
+		startTime+='-'+ 10 +'-01';
+		endTime+='-'+ 12 +'-31';
+	}
+	
+	getdate();
+	startTime=year;
+	endTime=year;
+}
+	
+var price=[];
+var tname=[];
+
+//基于准备好的dom，初始化echarts实例
+var myChart = echarts.init(document.getElementById('quarter_main'));
+function getdate(){
+		
+	if(startTime==null || endTime==null || startTime=='' || endTime==''){
+		return;
+	}
+		
+		$.post("../../order/findMonth",{startTime:startTime,endTime:endTime},function(data){
+			if(data==null){
+				alert("今天暂务营业额");
+			}else{
+				$.each(data.type,function(index,item){
+					if(data.price[index]==null){
+						price[index]=0;
+					}else{
+						price[index]=data.price[index];
+					}
+					
+					tname[index]=item.tname;
+				})
+					myChart.setOption({
+				    title: {
+				        text:'每种商品'+ date +'销量报表',
+				        textStyle:{
+				        	color:'#FF3030',
+				        	fontSize:18
+				        }
+				    },
+				    tooltip: {},
+				    legend: {show:false},
+				    xAxis: {
+				    	show:true,
+				    	name:'类别',				//---轴名称
+				    	nameLocation:'end',		//---轴名称相对位置
+				    	
+				    	axisLine:{		
+				    		show:true,//---坐标轴 轴线
+				    		symbol:['none', 'arrow'],	//---是否显示轴线箭头
+				    		symbolSize:[8, 8] ,			//---箭头大小
+				    		symbolOffset:[0,7]		//---箭头位置
+				    		},
+				        	data:tname,
+				    },
+				    yAxis: {
+				    	show:true,
+				    	axisLine:{					//---坐标轴 轴线
+				    		show:true,	
+				    		symbol:['none', 'arrow'],	//---是否显示轴线箭头
+				    		symbolSize:[8, 8] ,			//---箭头大小
+				    		symbolOffset:[0,7],			//---箭头位置
+				    	}
+					},
+				    series: [{
+				        name: '销量',
+				        type: 'bar',
+				        itemStyle: {
+				            normal: {
+				　　　　　　		//好，这里就是重头戏了，定义一个list，然后根据所以取得不同的值，这样就实现了，
+								color: function(params) {
+				                    var colorList = [
+				                      '#C1232B','#B5C334','#FCCE10','#E87C25','#27727B',
+				                       '#FE8463'
+				                    ];
+				                    return colorList[params.dataIndex]
+				                },
+				    }},
+				    data:price,
+				  }]
+				})
+			}
+		},"json")
+	}
+</script>
+</html>

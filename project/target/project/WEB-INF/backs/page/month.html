@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>月营销额</title>
+</head>
+<body>
+	<div id="month_sale">
+		<p><label>开始时间：</label><input type="date" name="date_start" id='date_start' onchange="getstart()"/></p>
+		<p><label>结束时间：</label><input type="date" name="date_end" id='date_end' onchange="getend()"/></p>
+	</div>
+    <div id="month_main" style="width: 600px;height:400px;">
+    </div>
+</body>
+<script type="text/javascript" src="../../back/js/jquery.min.js"></script>
+<script type="text/javascript" src="../../back/js/echarts.min.js"></script>
+<script>
+var startTime='';
+var endTime='';
+var startMonth='';
+var endMonth='';
+
+function getstart(){
+	var obj1=$("#date_start").val();
+	startMonth=obj1.split("-")[1];
+	startTime=obj1.split("-")[0]+'-'+ obj1.split("-")[1] +'-01';
+	console.log(startTime);
+	getdate();
+}
+function getend(){
+	var obj2=$("#date_end").val();
+	endMonth=obj2.split("-")[1];
+	endTime=obj2.split("-")[0]+'-'+obj2.split("-")[1]+'-01';
+	getdate();
+}
+
+var price=[];
+var tname=[];
+
+//基于准备好的dom，初始化echarts实例
+var myChart = echarts.init(document.getElementById('month_main'));
+function getdate(){
+	
+	if(endMonth==null || startMonth==null || endMonth=='' || startMonth==''){
+		return;
+	}
+	
+	$.post("../../order/findMonth",{startTime:startTime,endTime:endTime},function(data){
+		if(data==null){
+			alert("今天暂务营业额");
+		}else{
+			$.each(data.type,function(index,item){
+				if(data.price[index]==null){
+					price[index]=0;
+				}else{
+					price[index]=data.price[index];
+				}
+				
+				tname[index]=item.tname;
+			})
+				myChart.setOption({
+			    title: {
+			        text:'每种商品'+ startMonth +'-'+ endMonth +'销量报表',
+			        textStyle:{
+			        	color:'#FF3030',
+			        	fontSize:18
+			        }
+			    },
+			    tooltip: {},
+			    legend: {show:false},
+			    xAxis: {
+			    	show:true,
+			    	name:'类别',				//---轴名称
+			    	nameLocation:'end',		//---轴名称相对位置
+			    	
+			    	axisLine:{		
+			    		show:true,//---坐标轴 轴线
+			    		symbol:['none', 'arrow'],	//---是否显示轴线箭头
+			    		symbolSize:[8, 8] ,			//---箭头大小
+			    		symbolOffset:[0,7]		//---箭头位置
+			    		},
+			        	data:tname,
+			    },
+			    yAxis: {
+			    	show:true,
+			    	axisLine:{					//---坐标轴 轴线
+			    		show:true,	
+			    		symbol:['none', 'arrow'],	//---是否显示轴线箭头
+			    		symbolSize:[8, 8] ,			//---箭头大小
+			    		symbolOffset:[0,7],			//---箭头位置
+			    	}
+				},
+			    series: [{
+			        name: '销量',
+			        type: 'bar',
+			        itemStyle: {
+			            normal: {
+			　　　　　　		//好，这里就是重头戏了，定义一个list，然后根据所以取得不同的值，这样就实现了，
+							color: function(params) {
+			                    var colorList = [
+			                      '#C1232B','#B5C334','#FCCE10','#E87C25','#27727B',
+			                       '#FE8463'
+			                    ];
+			                    return colorList[params.dataIndex]
+			                },
+			    }},
+			    data:price,
+			  }]
+			})
+		}
+	},"json")
+}
+
+
+</script>
+</html>

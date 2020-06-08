@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+<div id="table" class="mt10">
+	<div class="box span10 oh">
+		<table width="100%" border="0" cellpadding="0" cellspacing="0" class="list_table">
+			<thead>
+				<tr>
+                   	<th width="20%">类型图片</th>
+					<th width="10%">类型编号</th>
+                   	<th width="20%">类型名称</th>
+                   	<th width="20%">类型状态</th>
+                   	<th width="30%">操作</th>
+                </tr>
+             </thead>
+             <tbody id="goodstype_info" align="center">
+				
+             </tbody>
+		</table>
+		<div class="page mt10">
+		<div class="pagination" id="pageContent">
+            
+		</div>
+        </div>
+	</div>
+</div>
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript">
+var page=parseInt(location.hash.replace("#", ""));
+var pages=0;
+	$(function(){
+		$.post("../../type/finds",{page:page},function(data){
+			if(data!=null){
+				var str='';
+				$.each(data.typeList,function(index,item){
+					str+='<tr><td><img src="../../'+ item.pic +'"></td>';
+					str+='<td>'+ item.tno +'</td>';
+					str+='<td>'+ item.tname +'</td>';
+					if(item.status==1){
+						str+='<td>正常</td>';
+					}else{
+						str+='<td>已下架</td>';
+					}
+					str+='<td><a href="#">下架</a>&nbsp;&nbsp;&nbsp;<a href="#">修改</a></td></tr>';
+					pages=data.total;
+				})
+				$("#goodstype_info").append($(str));
+				
+				//开始分页处理
+				var pageStr='<ul><li class="first-child"><a href="type.html#1">首页</a></li>';
+				pageStr+='<li><a href="javascript:void(0)" onclick="changePage(-1)">上一页</a></li>';
+				for(var i=0;i<pages;i++){
+					if((i+1)==page){
+						pageStr+='<li><a href="javascript:void(0)" onclick="toPage('+ (i + 1) +')" class="active">'+ (i+1) +'</a></li>';
+					}else{
+						pageStr+='<li><a href="javascript:void(0)" onclick="toPage('+ (i + 1) +')">'+ (i+1) +'</a></li>';
+					}
+				}
+				pageStr+=' <li><a href="javascript:void(0)" onclick="changePage(1)">下一页</a></li>';
+				pageStr+='<li class="last-child"><a href="type.html#'+ pages +'">末页</a></li></ul>';
+				$("#pageContent").append($(pageStr));
+			}
+		},"json")
+	})
+	
+	function changePage(num){
+		num=parseInt(num);
+		page=parseInt(page);
+		
+		if(page+num>pages){
+			page=pages;
+		}else if(page+num<=0){
+			page=1;
+		}else{
+			page=page+num;
+		}
+		location.href = "type.html#"+ page;
+	}
+	
+	function toPage(num){
+		location.href = "type.html#"+num;
+	}
+</script>
+</body>
+</html>

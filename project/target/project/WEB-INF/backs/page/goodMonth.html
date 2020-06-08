@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+ul{
+	margin-left:100px;
+}
+	ul li{
+		list-style-type:none;
+		float:left;
+		margin-left:40px;
+	}
+
+</style>
+<title>商品的月销售额</title>
+</head>
+<body>
+	<div id="goods_sale" style="width:100%;height:80px;">
+		<ul>
+			<li>
+				<label>月份:</label>
+				<select id="month">
+					
+				</select>
+			</li>
+			<li>
+				<label>商品类型:</label>
+				<select id="type" onchange="getGoods()">
+					
+				</select>
+			</li>
+			<li>
+				<label>商品名称:</label>
+				<select id="goods">
+					<option>---请选择---</option>
+				</select>
+			</li>
+			<li>
+				<input type="button" value="查询" onclick="finds()" name="find" id="find">
+			</li>
+		</ul>
+	</div>
+	
+	<div id="goods_main" style="width: 1100px;height:400px;">
+    </div>
+
+</body>
+<script type="text/javascript" src="../../back/js/jquery.min.js"></script>
+<script type="text/javascript" src="../../back/js/echarts.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		var monthStr='';
+		for(var i=1;i<=12;i++){
+			monthStr+='<option id="'+ i +'">'+ i +'</option>';
+		}
+		$("#month").append($(monthStr));
+		
+		//查询所有类型
+		$.post("../../type/findAll",null,function(data){
+			var typeStr='';
+			$.each(data,function(index,item){
+				typeStr+='<option id='+ item.tno +'>'+ item.tname +'</option>';
+			})
+			$("#type").append($(typeStr));
+		},"json")
+	})
+	
+	function getGoods(){
+		
+		var tno=$("#type option:selected").attr("id");
+		var goodsStr='';
+		$.post("../../good/Tno",{tno:tno},function(data){
+			
+			$.each(data,function(index,item){
+				goodsStr+='<option id='+ item.gno +'>'+ item.gname +'</option>';
+			})
+			$("#goods").html("").append($(goodsStr));
+		},"json")
+	}
+	
+	//查询
+	function finds(){
+		var price=[];
+		var tname=[];
+		//基于准备好的dom，初始化echarts实例
+		var myChart = echarts.init(document.getElementById('goods_main'));
+	
+		//首先先获取数据
+		var month=$("#month").val();
+		var gname=$("#goods").val();
+		var gno=$("#goods option:selected").attr("id");
+		
+		if(month<10){
+			month="0"+month;
+		}
+		
+		month=new Date().getFullYear()+"-"+month;
+		
+		if(month=='' || gno==''){
+			return;
+		}
+		
+		$.post("../../order/findSale",{month:month,gno:gno},function(data){
+			if(data==null || data==''){
+				alert("本月此商品暂无营业额");
+			}else{
+				$.each(data.type,function(index,item){
+					if(data.price[index]==null){
+						price[index]=0;
+					}else{
+						price[index]=data.price[index];
+					}
+					
+					tname[index]=item;
+				})
+					myChart.setOption({
+				    title: {
+				        text:gname +'月销量报表',
+				        textStyle:{
+				        	color:'#FF3030',
+				        	fontSize:18
+				        }
+				    },
+				    tooltip: {},
+				    legend: {show:false},
+				    xAxis: {
+				    	show:true,
+				    	name:'类别',				//---轴名称
+				    	nameLocation:'end',		//---轴名称相对位置
+				    	
+				    	axisLine:{		
+				    		show:true,//---坐标轴 轴线
+				    		symbol:['none', 'arrow'],	//---是否显示轴线箭头
+				    		symbolSize:[8, 8] ,			//---箭头大小
+				    		symbolOffset:[0,7]		//---箭头位置
+				    		},
+				        	data:tname,
+				    },
+				    yAxis: {
+				    	show:true,
+				    	axisLine:{					//---坐标轴 轴线
+				    		show:true,	
+				    		symbol:['none', 'arrow'],	//---是否显示轴线箭头
+				    		symbolSize:[8, 8] ,			//---箭头大小
+				    		symbolOffset:[0,7],			//---箭头位置
+				    	}
+					},
+				    series: [{
+				        name: '销量',
+				        type: 'line',
+				        itemStyle: {
+				            normal: {
+				　　　　　　		//好，这里就是重头戏了，定义一个list，然后根据所以取得不同的值，这样就实现了，
+								color: function(params) {
+				                    var colorList = [
+				                      '#C1232B','#B5C334','#FCCE10','#E87C25','#27727B',
+				                       '#FE8463'
+				                    ];
+				                    return colorList[params.dataIndex]
+				                },
+				    }},
+				    data:price,
+				  }]
+				})
+			}
+		},"json")
+	}
+</script>

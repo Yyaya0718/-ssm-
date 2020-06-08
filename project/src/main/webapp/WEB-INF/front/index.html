@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>天天生鲜-首页</title>
+<link rel="short icon" href="../images/copylogo.png">
+<link rel="stylesheet" href="../css/reset.css">
+<link rel="stylesheet" href="../css/index.css">
+<link rel="stylesheet" href="../css/foot.css">
+</head>
+
+<body>
+	<!-- 头部  -->
+<div id="app">
+	<div class="header_con">
+    	<div class="header">
+    		<div class="welcome fl">欢迎来到天天生鲜</div>
+    		<div class="fr">
+            	<div class="login_info fl" v-show="loginflag">
+                	欢迎：<em>{{ login_uname }}</em>
+                	<a href="../login.html">退出</a>
+                </div>
+                <div class="login_btn fl" v-if="loginbtn">
+                	<a href="../login.html">登录</a>
+                    <span> | </span>
+                    <a href="../register.html">注册</a>
+                </div>
+            	 <div class="user_link fl">
+                    <span> | </span>
+                    <a href="../front/page/user.html">用户中心</a>
+                    <span> | </span>
+                    <a href="../front/page/cart.html">我的购物车</a>
+                    <span> | </span>
+                    <a href="../front/page/order.html?page=1">我的订单</a>
+           		 </div> 
+             </div>  
+    	</div>
+    </div>
+    
+     <!-- 搜素框 -->
+     <div class="search_bar clearfix">
+     		<a href="index.html" class="logo fl"><img src="../images/logo.png"></a>
+     		<div class="search_con fl">
+            	<form>
+                    <input type="text" class="input_text fl" name="key_words" placeholder="搜索商品">
+                    <input type="submit" class="input_btn fr" id="search" value="搜索">
+                </form>
+            </div>
+     		<div class="guest_cart fr">
+            	<a href="../front/page/cart.html" class="cart_name fl">我的购物车</a>
+                <div class="goods_count fl">{{ cartnum }}</div>
+            </div>
+     </div>
+
+    <!-- 商品分类 -->
+    <div class="navbar_con">
+    	<div class="navbar">
+    		<h1 class="fl">全商品分类</h1>
+    		<ul class="navlist fl">
+    			<li><a href="index">首页</a></li>
+                <li class="interval">|</li>
+                <li><a href="">手机生鲜</a></li>
+                <li class="interval">|</li>
+                <li><a href="">抽奖</a></li>
+    		</ul>
+    	</div>
+    </div>
+    
+    <!-- 导航栏 -->
+
+    <div class="center_con clearfix">
+        <div class="subnav fl">
+            <ul>
+               <li v-for="type in types">
+               		<a :href=`#model0${type.tno}` :class=`${type.cls}`>{{ type.tname }}</a>
+               </li>
+            </ul>
+        </div>
+        <div class="slide fl">
+            <ul class="slide_pics">
+                <li><a href="" class=""><img src="../images/slide.jpg" alt="幻灯片"></a></li>
+                <li><a href="" class=""><img src="../images/slide02.jpg" alt="幻灯片"></a></li>
+                <li><a href="" class=""><img src="../images/slide03.jpg" alt="幻灯片"></a></li>
+                <li><a href="" class=""><img src="../images/slide04.jpg" alt="幻灯片"></a></li>
+            </ul>
+            <div class="prev"></div>
+            <div class="next"></div>
+            <ul class="points"></ul>
+        </div>
+        <div class="adv fl">
+            <a href=""><img src="../images/adv01.jpg" alt="清凉一夏"></a>
+            <a href=""><img src="../images/adv02.jpg" alt="盛夏尝鲜"></a>
+        </div>
+    </div>
+    
+    <!-- 商品展示 -->
+       <div class="list_model" v-for="type in types">
+    	<div class="list_title clearfix">
+        	<h3 class="fl" :id=`model0${type.tno}`>{{ type.tname }}</h3>
+        	<div class="subtitle fl">
+            	<span>|</span>
+                <a :href=`../front/page/details.html#${good.gno}` v-for="good in goods" v-if="type.tno == good.tno">{{ good.gname }}</a>
+            </div>
+            <a :href=`../front/page/goods.html?tno=${type.tno}&page=1` class="goods_more fr" id="fruit_more">查看更多</a>
+        </div>
+    
+    	<div class="goods_con clearfix">
+        	<div class="goods_banner fl"><img :src=`../${type.pic}`></div>
+        	<ul class="goods_list fl">
+            	<li v-for="good in goods" v-if="type.tno == good.tno">
+                	<h4><a :href=`../front/page/details.html#${good.gno}`>{{ good.gname }}</a></h4>
+                    <a :href=`../front/page/details.html#${good.gno}`><img :src=`../${good.pics}`></a>
+                	<div class="prize">￥{{ good.price }}</div>
+                </li>
+        	</ul>
+        </div>
+    </div>
+ </div>   
+    <!-- 版权所有 -->
+    <div class="footer">
+    	<div class="foot_link">
+        	<a href="#">关于我们</a> <span> | </span>
+            <a href="#">联系我们</a> <span> | </span>
+            <a href="#">招聘广告</a> <span> | </span>
+            <a href="#">友情链接</a>
+        </div>
+    	<p>CopyRight &copy; 2019 衡阳市源辰信息科技有限公司 All Rights Reserverd</p>
+        <p>电话：0734-8355998 湘ICP备16015987号-1</p>
+    </div>
+    
+    <!--  注意引入顺序 -->
+    <script src="../js/vue.js"></script>
+	<script src="../js/axios.js"></script>
+    <script src="../webjs/slide.js"></script>
+    <script src="../webjs/index.js"></script>
+	<script>
+
+	</script>
+</body>
+</html>

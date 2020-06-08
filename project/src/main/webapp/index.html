@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>天天生鲜-后台登陆</title>
+<link rel="stylesheet" href="back/css/login.css">
+<link rel="short icon" href="images/logo.png">
+<script src="js/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+	<div id="login_top">
+		<div id="welcome">
+			欢迎使用天天生鲜后台管理系统
+		</div>
+		<div id="back">
+			<a href="login.html">返回首页</a>&nbsp;&nbsp; | &nbsp;&nbsp;
+			<a href="#">帮助</a>
+		</div>
+	</div>
+	<div id="login_center">
+		<div id="login_area">
+			<div id="login_form">
+				<form action="" method="post" id="myform">
+					<div id="login_tip">
+						用户登录&nbsp;&nbsp;UserLogin
+					</div>
+					<div><input type="text" class="username" id="account" placeholder="请输入账号..."></div>
+					<div><input type="password" class="pwd" id="pwd" placeholder="请输入密码..."></div>
+					<div id="btn_area">
+						<input type="button"  onclick="checkLogin()" id="sub_btn" value="登&nbsp;&nbsp;录">&nbsp;&nbsp;
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<div id="login_bottom">
+		<label style="color:#FFF"><a class="copy" href="http://www.hyycinfo.com">衡阳市源辰信息科技有限公司 </a>&copy; 版权所有</label>
+	</div>
+</body>
+<script>
+function checkLogin() {
+	$("#sub_btn").attr("disabled","true");
+	
+	//获取用户名和密码
+	var uname=$("#account").val();
+	var pwd=$("#pwd").val();
+	
+	if(uname==''){
+		alert("用户名不能为空");
+		$("#sub_btn").removeAttr("disabled","true");
+		return;
+	}
+	
+	if(pwd==''){
+		alert("密码不能为空");
+		$("#sub_btn").removeAttr("disabled","true");
+		return;
+	}
+	
+	$.post("admin/login",{uname:uname,pwd:pwd},function(data){
+		data=parseInt($.trim(data));
+		
+		if(data==-1){
+			$("#sub_btn").removeAttr("disabled","true");
+			alert("登录失败");
+		}else{
+			alert("登录成功，即将跳入管理员主界面");
+			location.href="admin/backs";
+			
+		}
+	},"text")
+	
+}
+</script>
+</html>

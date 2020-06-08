@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 注意：namespace中的值必须是对应接口的全路径，SQL语句中的id值必须是这个接口中对应方法名称 -->
+<mapper namespace="com.yjj.fresh.mapper.IOrderInfoMapper">
+	<delete id="deleteCart">
+		delete from cartinfo
+		<foreach collection="array" open=" where cno in(" separator="," close=")" item="item">
+			#{item}
+		</foreach>
+	</delete>
+	
+	<update id="updateGoodsNum">
+		update goodsinfo set balance=case gno 
+		<foreach collection="list" separator=" " item="item">
+			when #{item.gno} then balance-#{item.num}
+		</foreach>
+		END 
+		<foreach collection="list" separator="," item="item" open="where gno in(" close=")">
+ 			#{item.gno}
+ 		</foreach>
+	</update>
+	
+	<insert id="addOrderInfo" parameterType="map">
+		insert into orderinfo values(#{ono},#{odate},#{mno},#{ano},'','',0,#{totalPrice},0)
+	</insert>
+	
+	<insert id="addOrderItem" >
+		insert into orderItemInfo values
+		<foreach collection="list" separator=", " item="item">
+			(0,#{item.ono},#{item.gno},#{item.num},#{item.price},0)
+		</foreach>
+	</insert>
+	
+	<select id="findOrderItem" parameterType="map" resultMap="OrderItem" >
+		select gname,g.price,g.pics,unit,weight,o.odate,o.priceAll,g.gno,i.nums,o.ono,o.status from goodsinfo g,orderinfo o,orderiteminfo i  
+		where o.ono=i.ono and g.gno=i.gno 
+		<foreach collection="list" open=" and g.gno in(" separator="," item="item" close=") ">
+			#{item}
+		</foreach>
+		and mno=#{mno} order by status
+	</select>
+	
+	<resultMap type="OrderInfo" id="OrderItem" autoMapping="true">
+		<id property="ono" column="ono"/>
+		
+		<!-- 一对多的时候，即需要注入一个集合中
+			注意：	集合注值的类型名通过ofType指定，而一对一- 关联注值是的类型名通过JavaType指定
+		-->
+		<collection property="orderItem" ofType="OrderItemInfo" autoMapping="true">
+			<id property="ino" column="ino"/>
+			<association property="goodsinfo" javaType="GoodsInfo" autoMapping="true">
+				<id property="gno" column="gno"/>
+			</association>
+		</collection>
+	</resultMap>
+	
+	<select id="findgno" parameterType="int" resultType="int">
+		select i.gno from orderiteminfo i ,orderinfo o where o.ono=i.ono and mno=#{mno}
+	</select>
+	
+	<update id="update" parameterType="map">
+		update orderinfo set status=1,odate=#{date} where ono=#{ono}
+	</update>
+	
+	<select id="findDate" parameterType="string" resultType="OrderItemInfo">
+		select oii.price from orderiteminfo oii,orderinfo oi where 
+		oi.ono=oii.ono and oi.status=1 and
+		oi.odate like concat('%', #{_parameter}, '%')
+	</select>
+	
+	<select id="findMonth" resultType="OrderItemInfo" parameterType="map">
+		select oii.price from orderiteminfo oii,orderinfo oi where 
+		oi.ono=oii.ono and oi.status=1
+		 and oi.odate between #{startTime} and #{endTime}
+	</select>
+	
+	<select id="findSale" parameterType="map" resultType="OrderItemInfo">
+		select gno,price,o.odate from orderinfo o,orderiteminfo oi 
+		where o.ono=oi.ono and o.odate like concat('%',#{month},'%') and gno=#{gno}
+	</select>
+	
+</mapper>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../../back/css/common.css">
+<link rel="stylesheet" href="../../back/css/main.css">
+<link rel="stylesheet" type="text/css" href="../../easyui/css/easyui.css">
+<link rel="stylesheet" type="text/css" href="../../easyui/css/icon.css">
+<link rel="stylesheet" type="text/css" href="../../easyui/css/wu.css" />
+</head>
+<body class="easyui-layout">
+<div id="table" class="mt10" style="width:100%;height:98%;">
+	
+		<table id="member_data" data-options="scrollbarSize:0">
+		
+		</table>
+		
+</div>
+<script type="text/javascript" src="../../easyui/js/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="../../easyui/js/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="../../easyui/js/jquery.easyui.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		$('#member_data').datagrid({
+			url:"../../member/finds",
+		    fitColumns:true,
+		    fit:true,
+		    striped:true,
+		    nowrap:true,
+		    loadMsg:'数据加载中...',
+		    pagination:true,
+		    singleSelect:true,
+		    sortName:"mno",
+		    remoteSort:false,
+		    pageNumber:1,
+		    pageSize:3,
+		    pageList:[1,2,3,4,5,6],
+		    columns:[[    
+		        {field:'mno',title:'会员编号',width:60,align:'center',sortable:true,sorter:function(a,b){
+		        	var i=parseInt(a);
+		        	var j=parseInt(b);
+		        	return i>b?1:-1;
+		        }},    
+		        {field:'nickName',title:'昵称',width:80,align:'center',height:150},
+		        {field:'pwd',title:'密码',width:80,align:'center'},
+		        {field:'tel',title:'电话号码',width:80,align:'center'},
+		        {field:'email',title:'邮箱',width:80,align:'center'},
+		        {field:'status',title:'状态',width:60,align:'center',formatter:function(val,row,index){
+		        	if(val==1){
+		        		return "<font color='blue'>正常</font>";
+		        	}else{
+		        		return "<font color='red'>已冻结</font>";
+		        	}
+		        }},
+		        {field:'_opreat',title:'操作',width:80,align:'center',formatter:function(val,row,index){
+		        	var str="";
+		        	if(row.status==1){
+		        		str+="<a href='javascript:void(0);' onclick='fridden("+ row.mno +",0)' style='color:red;'>封禁</a>";
+		        	}else{
+		        		str+="<a href='javascript:void(0);' onclick='fridden("+ row.mno +",1)' style='color:red;'>解封</a>";
+		        	}
+		        	str+="&nbsp;&nbsp;&nbsp;<a href='javascript:void(0);' onclick='del("+ row.mno +")' style='color:red;'>删除</a>";
+		        	return str;
+		        }}    
+		    ]]
+		});  
+	})
+	
+	function fridden(mno,status){
+		$.post("../../member/frid",{mno:mno,status:status},function(data){
+			data=parseInt($.trim(data));
+			if(data==-2){
+				alert("说明有属性值为空");
+			}else if(data>0){
+				alert("操作成功");
+				$('#member_data').datagrid('reload');
+			}else{
+				alert("操作失败");
+			}
+		},"text");
+	}
+	
+	function del(mno){
+		var flag=confirm("您确定删除此会员的信息嘛?");
+		
+		if(!flag){
+			return;
+		}
+		
+		$.post("../../member/del",{mno:mno},function(data){
+			data=parseInt($.trim(data));
+			if(data==-2){
+				alert("说明有属性值为空");
+			}else if(data>0){
+				alert("删除成功");
+				$('#member_data').datagrid('reload');
+			}else{
+				alert("删除失败");
+			}
+		},"text");
+	}
+
+</script>
+</body>
+</html>

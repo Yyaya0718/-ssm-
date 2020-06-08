@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 注意：namespace中的值必须是对应接口的全路径，SQL语句中的id值必须是这个接口中对应方法名称 -->
+<mapper namespace="com.yjj.fresh.mapper.IGoodsInfoMapper">
+	<select id="findAll" resultType="GoodsInfo">
+		select gno,gname,price,pics,tno from goodsinfo gf1 where 4>
+		 (select count(gno) from goodsinfo gf2 where gf1.tno=gf2.tno and gf1.gno &lt; gf2.gno)
+		 order by gf1.tno asc,gf1.gno desc
+	</select>
+	
+	<select id="findByPage" parameterType="map" resultType="GoodsInfo">
+		select gno,gname,price,intro,balance,pics,descr,unit,weight,t.tno,tname from goodsinfo g,typeinfo t 
+		where g.tno=t.tno and t.tno=#{tno} order by balance DESC,g.gno DESC limit #{page},#{rows} 
+	</select>
+	
+	<select id="findByTno" parameterType="string" resultType="int">
+		select count(gno) as num from goodsinfo where tno=#{_parameter}
+	</select>
+	
+	<select id="fingByGno" parameterType="string" resultType="GoodsInfo">
+		select gno,gname,price,intro,balance,pics,descr,unit,weight,qperied,t.tno,tname from goodsinfo g,typeinfo t 
+		where g.tno=t.tno and gno=#{_parameter}
+	</select>
+	
+	<select id="find" resultType="GoodsInfo" parameterType="map">
+		select g.gno,gname,pics,unit,weight,price,tno,cno,num from goodsinfo g,cartinfo c where g.gno=c.gno and mno=#{mno}
+		<foreach collection="array" open=" and g.gno in(" separator="," item="item" close=")">
+			#{item}
+		</foreach>
+	</select>
+	
+	<select id="findOrder" resultType="GoodsInfo">
+		select gno,gname,pics,weight,unit,price from goodsinfo 
+		<foreach collection="array" open="where gno in(" close=")" separator="," item="item">
+			#{item}
+		</foreach>
+	</select>
+	
+	<select id="findNew" resultType="GoodsInfo">
+		select gname,gno,price,pics from goodsinfo order by gno desc limit 2
+	</select>
+	
+	<!-- 后台管理员端 -->
+	
+	<insert id="add" parameterType="map">
+		insert into goodsinfo values(0,#{gname},#{tno},#{price},#{intro},#{balance},#{pics},#{unit},#{qperied},#{weight},#{descr})
+	</insert>
+	
+	<select id="finds" parameterType="map" resultType="GoodsInfo">
+		select gno,gname,price,intro,balance,pics,unit,weight,tname,qperied from goodsinfo g,typeinfo t 
+		where g.tno=t.tno order by t.tno limit #{page},#{rows} 
+	</select>
+	
+	<select id="total" resultType="int">
+		select count(gno) from goodsinfo
+	</select>
+	<delete id="delete" parameterType="int">
+		delete from goodsinfo where gno=#{gno}
+	</delete>
+	
+	<update id="update" parameterType="map">
+		update goodsinfo set gname=#{gname},price=#{price},tno=#{tno},balance=#{balance},unit=#{unit},
+		qperied=#{qperied},weight=#{weight},intro=#{intro},descr=#{descr} 
+		<if test="pics!=null and pics!='' ">
+			,pics=#{pics}
+		</if>
+		where gno=#{gno}
+	</update>
+	
+	<select id="findTno" parameterType="string" resultType="GoodsInfo">
+		select gno,gname from goodsinfo where tno=#{_parameter}
+	</select>
+</mapper>
