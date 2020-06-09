@@ -23,6 +23,13 @@ public interface IGoodsInfoBiz {
 	public GoodsInfo fingByGno(String gno);
 	
 	/**
+	 * 足迹显示
+	 * @param gnos
+	 * @return
+	 */
+	public List<GoodsInfo> finFoot(String[] array);
+	
+	/**
 	 * 查找最新的两个单品
 	 * @return
 	 */

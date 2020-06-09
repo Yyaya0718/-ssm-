@@ -54,106 +54,23 @@
 		<div class="left_menu_con fl clearfix">
 			<h3>用户中心</h3>
 			<ul>
-				<li><a href="javascrit:void(0)" class="active">· 个人信息</a></li>
-				<li><a href="javascrit:void(0)" >· 全部订单</a></li>
-				<li><a href="javascrit:void(0)" >· 收货地址</a></li>
+				<li><a href="javascrit:void(0)" class="active">·浏览足迹</a></li>
 			</ul>
+			
 		</div>
         
         <!-- 右侧信息展示 -->
         <div class="right_content fr clearfix">
 			<!-- 基本信息  -->
             <div class="info_con clearfix">
-                <h3 class="common_title2">基本信息</h3>
-                <ul class="user_info_list">
-                    <li>用户名称：<input disabled="true" type="text"> </li>
-                    <li><label style="margin-right:40px;">密码:</label><input disabled="true" type="text"></li>
-                    <li><label style="margin-right:40px;">邮箱:</label><input disabled="true" type="text"></li>
-                    <li>联系方式：<input disabled="true" type="text"></li>
-                </ul>
-            </div>
-            
-           <!-- 查看订单 -->
-           <div class="order_icon">
-        		<h3 class="common_title2">全部订单</h3>
-				<ul class="order_list_th w978 clearfix">
-					<li class="col01">2016-8-21 17:36:24</li>
-					<li class="col02">订单号：56872934</li>
-					<li class="col02 stress">未支付</li>		
-				</ul>
-
-				<table class="order_list_table w980">
-					<tbody>
-						<tr>
-							<td width="55%">
-								<ul class="order_goods_list clearfix">					
-									<li class="col01"><img src="images/goods02.jpg"></li>
-									<li class="col02">嘎啦苹果嘎啦苹果<em>11.80元/500g</em></li>	
-									<li class="col03">1</li>
-									<li class="col04">11.80元</li>	
-								</ul>
-								<ul class="order_goods_list clearfix">					
-									<li class="col01"><img src="images/goods02.jpg"></li>
-									<li class="col02">嘎啦苹果嘎啦苹果<em>11.80元/500g</em></li>	
-									<li class="col03">1</li>
-									<li class="col04">11.80元</li>	
-								</ul>
-							</td>
-							<td width="15%">33.60元</td>
-							<td width="15%">待付款</td>
-							<td width="15%"><a href="#" class="oper_btn">去付款</a></td>
-						</tr>
-					</tbody>
-				</table>
-			
-				<div class="pagenation">
-					<ul>
-                        <li><a href="#">上一页</a></li>
-                        <li><a href="#" class="active">1</a></li>
-                        <li><a href="#">2</a></li>
-                        <li><a href="#">3</a></li>
-                        <li><a href="#">下一页</a></li>
-					</ul>
-				</div>
-           </div>
-            
-            <!-- 收货地址 -->
-            <div class="site_con">
-                <h3 class="common_titile2">收货地址</h3>
-                <div class="site_top">
-                    <dl>
-                        <dt>当前地址</dt>
-                        <dd>收件对象：<span></span></dd>
-                        <dd>收货地址：<span></span></dd>
-                        <dd>电话号码：<span></span></dd>
-                    </dl>
-                </div>
-                <h3 class="common_title2">编辑地址</h3>
-                <div class="site_btm">
-                    <form>
-                        <div class="form_group">
-                            <label for="name">收件人：</label>
-                            <input type="text" name="name" id="name">
-                        </div>
-                        <div class="form_group form_group2">
-                            <label for="addr">详细地址：</label>
-                            <textarea class="site_area" name="addr" id="addr"></textarea>
-                        </div>
-                        <div class="form_group">
-                            <label for="email">邮编：</label>
-                            <input type="text" name="email" id="email">
-                        </div>
-                        <div class="form_group">
-                            <label for="tel">手机：</label>
-                            <input type="text" name="tel" id="tel">
-                        </div>
-                        <input type="submit" name="" value="提交" class="info_submit" onclick="check_addr()">
-                    </form>
+            	<h3 class="common_title2">最近浏览</h3>
+                <div class="has_view_list">
+                    <ul class="goods_type_list clearfix" id="goods">
+                        
+                    </ul>
                 </div>
             </div>
-        </div>
-
-    </div>
+            
     
     <!-- 版权所有 -->
 	<div class="footer">
@@ -170,6 +87,21 @@
 <script src="../../js/jquery-3.4.1.min.js"></script>
 <script type="text/javascript" src="../../webjs/check.js"></script>
 <script type="text/javascript">
+	$(function(){
+		$.post("../../good/foot",null,function(data){
+			if(data!=null){
+				var str='';
+				for(var i=0;i<data.length;i++){
+					str+='<li><a href="details.html#'+ data[i].gno +'"><img src="../../'+ data[i].pics +'"></a>';
+					str+='<h4><a href="details.html#'+ data[i].gno +'">'+ data[i].gname +'</a></h4><div class="operate">';
+					str+='<span class="prize">￥'+ data[i].price +'</span><span class="unit">'+ data[i].price +'/'+ data[i].weight +''+ data[i].unit +'</span>';
+					str+='</div></li>';
+				}
+				$("#goods").append($(str));
+			}
+		},"json");
+		
+	})
 </script>
 </html>
 

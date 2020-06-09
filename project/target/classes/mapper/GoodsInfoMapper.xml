@@ -25,6 +25,15 @@
 		where g.tno=t.tno and gno=#{_parameter}
 	</select>
 	
+	
+	<select id="findFoot" resultType="GoodsInfo" parameterType="map">
+		select gno,price,unit,weight,gname,pics from goodsinfo where gno in
+		<foreach collection="array" open=" (" separator="," item="item" close=")">
+			#{item}
+		</foreach>
+		order by FIND_IN_SET(gno,concat("'",#{gnos},"'"))
+	</select>
+	
 	<select id="find" resultType="GoodsInfo" parameterType="map">
 		select g.gno,gname,pics,unit,weight,price,tno,cno,num from goodsinfo g,cartinfo c where g.gno=c.gno and mno=#{mno}
 		<foreach collection="array" open=" and g.gno in(" separator="," item="item" close=")">

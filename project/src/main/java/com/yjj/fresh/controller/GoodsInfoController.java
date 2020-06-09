@@ -2,11 +2,16 @@ package com.yjj.fresh.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +21,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.yjj.fresh.biz.IGoodsInfoBiz;
 import com.yjj.fresh.enity.GoodsInfo;
+import com.yjj.fresh.enity.MemberInfo;
 import com.yjj.fresh.util.AddWaterMark;
+
+import redis.clients.jedis.Jedis;
 
 @RestController
 @RequestMapping("/good")
@@ -24,6 +32,7 @@ public class GoodsInfoController {
 
 	@Autowired
 	private IGoodsInfoBiz goodInfoBiz;
+	private Jedis jedis = new Jedis("localhost");
 
 	@RequestMapping("/findGoods")
 	public Map<String,Object> findGood(){
@@ -45,11 +54,41 @@ public class GoodsInfoController {
 	}
 
 	@RequestMapping("/findByGno")
-	public GoodsInfo findByGno(String gno){
+	public GoodsInfo findByGno(String gno,HttpSession session){
+		
+		//将这个gno存到redis数据库
+		MemberInfo memberInfo=(MemberInfo) session.getAttribute("loginUser");
+		System.out.println("连接上了------"+memberInfo.getMno());
+		String keys="users"+memberInfo.getMno();
+		jedis.zrem(keys, gno);
+        jedis.zadd(keys, System.currentTimeMillis(), gno);
+        jedis.set(keys, gno, "NX", "EX", 60*60*24*7);
 		return goodInfoBiz.fingByGno(gno);
 	}
 
-
+	@RequestMapping("/foot")
+	public List<GoodsInfo> findFoot(HttpSession session){
+		
+		//从redis中取出浏览到的商品
+		MemberInfo memberInfo=(MemberInfo) session.getAttribute("loginUser");
+		Set<String> gnos=jedis.zrange("users"+memberInfo.getMno(), 0, -1);
+		String[] array=new String[gnos.size()];
+		
+		if(gnos==null || gnos.size()==0) {
+			return null;
+		}else {
+			int index=gnos.size()-1;
+			for (String str : gnos) {  
+			     array[index]=str; 
+			     index--;
+			}  
+			System.out.println("gnos:"+gnos+"\n"+"array:"+array+"\n"+"array.length"+array.length);
+			return goodInfoBiz.finFoot(array);
+		}
+		
+		
+	}
+	
 	//管理员端
 
 	//管理员端的商品信息

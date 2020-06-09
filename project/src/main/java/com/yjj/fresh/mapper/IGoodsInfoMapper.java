@@ -28,6 +28,13 @@ public interface IGoodsInfoMapper {
 	 */
 	public GoodsInfo fingByGno(String gno);
 	
+	/**
+	 * 浏览足迹
+	 * @param array
+	 * @return
+	 */
+	public List<GoodsInfo> findFoot(Map<String,Object> map);
+	
 	
 	public List<GoodsInfo> find(Map<String,Object> map);
 	

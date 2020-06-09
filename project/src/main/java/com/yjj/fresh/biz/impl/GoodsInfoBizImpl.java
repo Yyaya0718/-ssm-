@@ -80,6 +80,20 @@ public class GoodsInfoBizImpl implements IGoodsInfoBiz {
 	}
 
 	@Override
+	public List<GoodsInfo> finFoot(String[] gnos) {
+		Map<String,Object> map=new HashMap<String,Object>();
+		map.put("array", gnos);
+		String str="";
+		for(int i=0;i<gnos.length-1;i++) {
+			str+=gnos[i]+",";
+		}
+		str+=gnos[gnos.length-1];
+		System.out.println("str:"+str);
+		map.put("gnos", str);
+		return goodsInfoMapper.findFoot(map);
+	}
+	
+	@Override
 	public Map<String, Object> findByPage(Integer page, Integer rows) {
 		if(page<=0 || rows<=0){
 			return null;
@@ -120,5 +134,7 @@ public class GoodsInfoBizImpl implements IGoodsInfoBiz {
 		}
 		return goodsInfoMapper.findTno(tno);
 	}
+
+	
 
 }
